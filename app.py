@@ -47,7 +47,7 @@ if st.button("💾 GUARDAR REGISTRO", type="primary"):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 nombre_archivo = f"img_{timestamp}.png"
                 
-                archivo_bytes = archivo_foto.getbuffer()
+                archivo_bytes = archivo_foto.getvalue()
                 
                 # Subir al bucket 'fotos_probetas' (Asegúrate que el bucket exista y sea público)
                 supabase.storage.from_("fotos_probetas").upload(
