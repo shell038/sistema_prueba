@@ -75,4 +75,22 @@ if st.button("💾 GUARDAR REGISTRO", type="primary"):
             except Exception as e:
                 st.error(f"Error: {e}")
                 
-    elif not archivo_
+    elif not archivo_foto:
+        st.error("⚠️ Falta la foto.")
+    elif lat == 0:
+        st.error("⚠️ Falta el GPS.")
+
+# 6. Ver historial
+st.write("---")
+st.subheader("📂 Registros Recientes")
+try:
+    registros = supabase.table("pruebas").select("*").order("created_at", desc=True).limit(3).execute()
+    
+    for row in registros.data:
+        with st.container(border=True):
+            if row.get('foto_url'):
+                st.image(row['foto_url'], width=200)
+            st.write(f"📝 {row['nota']}")
+            st.caption(f"📍 {row['latitud']}, {row['longitud']}")
+except:
+    pass
