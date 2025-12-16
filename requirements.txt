@@ -1,0 +1,7 @@
+streamlit                   # El cerebro de la Web App
+supabase                    # Conector a tu Base de Datos
+pandas                      # Para manejar los datos en tablas
+opencv-python-headless      # Visión Artificial (para procesar la imagen del QR)
+pyzbar                      # El decodificador que lee el QR
+streamlit-js-eval           # Para "robarle" el GPS al navegador del celular
+pillow                      # Para procesar y guardar las fotos
