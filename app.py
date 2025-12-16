@@ -4,8 +4,8 @@ from streamlit_js_eval import get_geolocation
 from datetime import datetime
 
 # 1. Configuración
-st.set_page_config(page_title="Sistema de Prueba", page_icon="🧪")
-st.title("🧪 Prueba de Campo: Foto y GPS")
+st.set_page_config(page_title="Sistema de Prueba", page_icon="📲")
+st.title("📲 Registro de Campo: Foto y GPS")
 
 # 2. Conexión a Supabase
 try:
@@ -20,8 +20,7 @@ except Exception as e:
 st.write("---")
 st.subheader("1. Datos Generales")
 
-# Solo pedimos la NOTA (porque es la única columna de texto que tienes)
-nota_usuario = st.text_input("Escribe una nota:", "Prueba de campo con foto")
+nota_usuario = st.text_input("Escribe una nota:", "Prueba de sistema")
 
 # GPS
 loc = get_geolocation()
@@ -41,25 +40,26 @@ archivo_foto = st.camera_input("Tomar foto")
 # 5. Guardar
 if st.button("💾 GUARDAR REGISTRO", type="primary"):
     if archivo_foto and lat != 0:
-        with st.spinner("Subiendo foto y datos..."):
+        with st.spinner("Subiendo datos..."):
             try:
-                # A. Subir Foto
+                # A. Generar nombre de archivo
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                nombre_archivo = f"img_{timestamp}.png"
+                nombre_archivo = f"foto_{timestamp}.png"
                 
+                # B. Preparar la imagen (Corrección aplicada: getvalue)
                 archivo_bytes = archivo_foto.getvalue()
                 
-                # Subir al bucket 'fotos_probetas' (Asegúrate que el bucket exista y sea público)
-                supabase.storage.from_("fotos_probetas").upload(
+                # C. Subir al bucket 'fotos' (Nombre genérico)
+                supabase.storage.from_("fotos").upload(
                     path=nombre_archivo,
                     file=archivo_bytes,
                     file_options={"content-type": "image/png"}
                 )
                 
-                # B. Obtener Link
-                url_publica = supabase.storage.from_("fotos_probetas").get_public_url(nombre_archivo)
+                # D. Obtener Link Público
+                url_publica = supabase.storage.from_("fotos").get_public_url(nombre_archivo)
                 
-                # C. Guardar en Base de Datos (Solo tus columnas)
+                # E. Guardar en Base de Datos
                 datos = {
                     "latitud": lat,
                     "longitud": lon,
@@ -70,30 +70,9 @@ if st.button("💾 GUARDAR REGISTRO", type="primary"):
                 supabase.table("pruebas").insert(datos).execute()
                 
                 st.balloons()
-                st.success("✅ ¡Registro guardado exitosamente!")
+                st.success("✅ ¡Guardado con éxito!")
                 
             except Exception as e:
-                st.error(f"Ocurrió un error: {e}")
+                st.error(f"Error: {e}")
                 
-    elif not archivo_foto:
-        st.error("⚠️ Falta la foto.")
-    elif lat == 0:
-        st.error("⚠️ Falta el GPS.")
-
-# 6. Ver datos recientes
-st.write("---")
-st.subheader("📂 Registros en Base de Datos")
-try:
-    registros = supabase.table("pruebas").select("*").order("created_at", desc=True).limit(3).execute()
-    
-    for row in registros.data:
-        with st.container(border=True):
-            # Mostrar foto si existe
-            if row.get('foto_url'):
-                st.image(row['foto_url'], width=200)
-            
-            # Mostrar datos
-            st.write(f"📝 **Nota:** {row['nota']}")
-            st.caption(f"📍 {row['latitud']}, {row['longitud']} | 📅 {row['created_at']}")
-except:
-    pass
+    elif not archivo_
